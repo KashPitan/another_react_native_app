@@ -1,15 +1,39 @@
 import * as React from 'react';
-import { StyleSheet } from 'react-native';
+import { useEffect, useState } from 'react';
+import { FlatList, StyleSheet } from 'react-native';
 
-import EditScreenInfo from '../components/EditScreenInfo';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { Text, View } from '../components/Themed';
+import { ExerciseData } from '../types';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function TabTwoScreen() {
+  const [workoutState, setWorkoutState] = useState<ExerciseData[]>([])
+  const WORKOUT_KEY = 'WORKOUT';
+
+  useFocusEffect(
+    React.useCallback(() => {
+      (async () => {
+        const existingWorkoutData = await AsyncStorage.getItem(WORKOUT_KEY);
+        console.log('cardioWorkouts ==> ', existingWorkoutData);
+        if (existingWorkoutData !== null) {
+          const workouts: ExerciseData[] = JSON.parse(existingWorkoutData);
+          console.log('workouts ==> ', workouts);
+          setWorkoutState(workouts);
+        }else{
+          setWorkoutState([]);
+        }
+      })();
+    }, [])
+  );
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tab Two</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="/screens/TabTwoScreen.tsx" />
+      <FlatList 
+        data={workoutState}
+        renderItem={({item,index}) => {return <View style={styles.setItem}><Text style={styles.setItemText}>{item.exerciseName}: sets: {item.setData.length}</Text></View>}}
+        keyExtractor={(item, index) => index.toString()}/>
     </View>
   );
 }
@@ -29,4 +53,11 @@ const styles = StyleSheet.create({
     height: 1,
     width: '80%',
   },
+  setItemText : {
+    fontWeight: 'bold',
+    fontSize: 20
+  },
+  setItem : {
+    paddingTop:2
+  }
 });
