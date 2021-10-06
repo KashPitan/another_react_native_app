@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet,TouchableOpacity} from 'react-native';
+import ViewExerciseModal from '../components/ViewExerciseModal'
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -9,7 +10,10 @@ import { ExerciseData } from '../types';
 import { useFocusEffect } from '@react-navigation/native';
 
 export default function TabTwoScreen() {
-  const [workoutState, setWorkoutState] = useState<ExerciseData[]>([])
+  const [workoutState, setWorkoutState] = useState<ExerciseData[]>([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedExercise, setSelectedExercise] = useState<ExerciseData | null>(null);
+
   const WORKOUT_KEY = 'WORKOUT';
 
   useFocusEffect(
@@ -28,12 +32,32 @@ export default function TabTwoScreen() {
     }, [])
   );
 
+  const toggleModal = () => {
+    setModalVisible(!modalVisible);
+  }
+
+  const onPressExercise = (exerciseIndex: number) => {
+    setSelectedExercise(workoutState[exerciseIndex]);
+    toggleModal();
+  }
+
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Completed Exercises</Text>
       <FlatList 
         data={workoutState}
-        renderItem={({item,index}) => {return <View style={styles.setItem}><Text style={styles.setItemText}>{item.exerciseName}: sets: {item.setData.length}</Text></View>}}
+        renderItem={({item,index}) => {
+        return (
+          <TouchableOpacity
+          style={{borderWidth:2, borderRadius: 5, padding: 20, margin: 5}}
+            onPress={() => onPressExercise(index)}
+            >
+              <View style={styles.setItem}>
+                <Text style={styles.setItemText}>{item.exerciseName}: sets: {item.setData.length}</Text>
+              </View>
+          </TouchableOpacity>)}}
         keyExtractor={(item, index) => index.toString()}/>
+        <ViewExerciseModal modalVisible={modalVisible} exerciseData={selectedExercise} toggleModal={toggleModal}/>
     </View>
   );
 }
@@ -47,6 +71,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
+    padding: 20
   },
   separator: {
     marginVertical: 30,

@@ -22,7 +22,11 @@ export default function TabOneScreen({ navigation }: RootTabScreenProps<'TabOne'
     setModalVisible(!modalVisible);
   }
 
-  const onPressSaveButton = () => {
+  const onPressStartNextSetButton = () => {
+    if (counter === 0){
+      alert("You haven't completed any reps!");
+      return;
+    }
     setSetData([...setData, {reps: counter, weight}]);
     setCounter(0);
   }
@@ -61,7 +65,7 @@ export default function TabOneScreen({ navigation }: RootTabScreenProps<'TabOne'
       <View style={{paddingTop:40, width:'100%',flexDirection: 'row', justifyContent:'center'}}>
        <TouchableOpacity
         style={styles.saveButton}
-        onPress={() => onPressSaveButton()}
+        onPress={() => onPressStartNextSetButton()}
         >
           <Text style={{fontSize:20, color: 'white'}}>Start Next Set</Text>
         </TouchableOpacity>
@@ -74,7 +78,7 @@ export default function TabOneScreen({ navigation }: RootTabScreenProps<'TabOne'
       <View style={{paddingTop:20, paddingBottom: 20,width:'100%',flexDirection: 'row', justifyContent:'center'}}>
        <TouchableOpacity
         style={styles.saveButton}
-        onPress={() => setData.length === 0 ? alert(`You haven't completed any sets!`) : toggleModal() }
+        onPress={() => setData.length === 0 ? alert("You haven't completed any sets!") : toggleModal()}
         >
           <Text style={{fontSize:20, color: 'white'}}>Save Exercise</Text>
           <MaterialCommunityIcons name='weight-lifter' size={20} color='white' />
